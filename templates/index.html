@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyze Image Application</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); }
+            50% { box-shadow: 0 0 40px rgba(168, 85, 247, 0.8); }
+        }
+
+        @keyframes fade-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        body {
+            background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #1a1a2e);
+            background-size: 400% 400%;
+            animation: gradient-shift 15s ease infinite;
+        }
+
+        .card {
+            animation: fade-in-up 0.6s ease-out;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .float-icon {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .glow-button {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .glow-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.5);
+        }
+
+        .glow-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .glow-button:hover::before {
+            left: 100%;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .response-box {
+            animation: fade-in-up 0.5s ease-out;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .title-glow {
+            text-shadow: 0 0 20px rgba(168, 85, 247, 0.5), 0 0 40px rgba(168, 85, 247, 0.3);
+        }
+
+        .shimmer-effect {
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        textarea:focus {
+            outline: none;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+            border-color: rgba(59, 130, 246, 0.8);
+        }
+
+        .image-preview {
+            transition: all 0.3s ease;
+            animation: fade-in-up 0.5s ease-out;
+        }
+
+        .image-preview:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.3);
+        }
+
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+    </style>
+</head>
+<body class="min-h-screen text-gray-300 font-sans">
+
+    <div class="container mx-auto p-6">
+        <div class="flex items-center justify-center mb-12">
+            <i class="fas fa-camera text-6xl text-purple-400 mr-4 float-icon"></i>
+            <h1 class="text-4xl font-bold text-purple-300 title-glow">AI-DOCTOR (MEDICAL CHATBOT) ANALYZE IMAGE APPLICATION</h1>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            
+            <!-- Upload Image Card -->
+            <div class="card glass-effect p-6 rounded-xl shadow-lg stagger-1">
+                <h2 class="text-xl font-semibold text-purple-400 mb-4">📤 Upload Image</h2>
+                
+                <button id="upload-btn" class="glow-button w-full py-3 bg-purple-500 hover:bg-purple-600 text-white font-bold rounded-md transition-all">
+                    📸 Click to Upload
+                </button>
+                
+                <input type="file" id="image-upload" accept="image/*" class="hidden" />
+                
+                <div id="image-container" class="hidden mt-4">
+                    <img id="display-image" src="" alt="Uploaded image" class="image-preview w-full rounded-lg shadow-lg" />
+                </div>
+            </div>
+
+            <!-- Ask Question Card -->
+            <div class="card glass-effect p-6 rounded-xl shadow-lg stagger-2">
+                <h2 class="text-xl font-semibold text-blue-400 mb-4">💬 Ask Question</h2>
+                <textarea id="query-input" rows="4" placeholder="Enter your question about the image"
+                    class="w-full p-3 bg-gray-800 text-gray-300 rounded-lg shadow border border-gray-700 transition-all"></textarea>
+                <button id="submit-query" class="glow-button w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition-all">
+                    🚀 Submit Query
+                </button>
+            </div>
+
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- Llama Response -->
+            <div class="card glass-effect p-6 rounded-xl shadow-lg stagger-3">
+                <h2 class="text-xl font-semibold text-green-400">🤖 Llama-3.2-11b-vision Response</h2>
+                <div id="response-container-llama11b" class="hidden mt-4 bg-gray-800 p-4 rounded text-gray-300 response-box"></div>
+            </div>
+            
+            <!-- Llava Response -->
+            <div class="card glass-effect p-6 rounded-xl shadow-lg stagger-4">
+                <h2 class="text-xl font-semibold text-green-400">🤖 Llama-3.2-90b-vision Response</h2>
+                <div id="response-container-llama90b" class="hidden mt-4 bg-gray-800 p-4 rounded text-gray-300 response-box"></div>
+            </div>
+
+        </div>
+
+        <!-- Error Message -->
+        <div id="error-container" class="hidden mt-8 p-4 bg-red-500 text-white rounded response-box">
+            <p id="error-text"></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadBtn = document.getElementById('upload-btn');
+            const imageUpload = document.getElementById('image-upload');
+            const displayImage = document.getElementById('display-image');
+            const imageContainer = document.getElementById('image-container');
+            const queryInput = document.getElementById('query-input');
+            const submitQuery = document.getElementById('submit-query');
+            const responseLlama = document.getElementById('response-container-llama11b');
+            const responseLlava = document.getElementById('response-container-llama90b');
+            const errorContainer = document.getElementById('error-container');
+            const errorText = document.getElementById('error-text');
+
+            // Click to Upload button trigger
+            uploadBtn.addEventListener('click', () => {
+                imageUpload.click();
+            });
+
+            // Display uploaded image
+            imageUpload.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        displayImage.src = e.target.result;
+                        imageContainer.classList.remove('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Submit Query
+            submitQuery.addEventListener('click', async () => {
+                const image = imageUpload.files[0];
+                const query = queryInput.value;
+
+                if (!image || !query) {
+                    showError('⚠️ Please upload an image and enter a query.');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('image', image);
+                formData.append('query', query);
+
+              try {
+    submitQuery.disabled = true;
+    submitQuery.innerHTML = 'Processing... <span class="spinner"></span>';
+
+    const response = await fetch('/upload_and_query', {
+        method: 'POST',
+        body: formData
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+        throw new Error(result.detail || 'An error occurred while processing your request.');
+    }
+
+    // ✅ Safely check before calling marked()
+    responseLlama.innerHTML = result.llama_17b 
+        ? marked.parse(result.llama_17b) 
+        : "<p><em>No response from Llama 17B model.</em></p>";
+
+    responseLlava.innerHTML = result.llama_17mb 
+        ? marked.parse(result.llama_17mb) 
+        : "<p><em>No response from Llama 17MB model.</em></p>";
+
+    responseLlama.classList.remove('hidden');
+    responseLlava.classList.remove('hidden');
+    errorContainer.classList.add('hidden');
+} catch (error) {
+    console.error('Error:', error);
+    showError(error.message);
+} finally {
+    submitQuery.disabled = false;
+    submitQuery.textContent = '🚀 Submit Query';
+}
+
+            });
+
+            function showError(message) {
+                errorText.textContent = message;
+                errorContainer.classList.remove('hidden');
+                responseLlama.classList.add('hidden');
+                responseLlava.classList.add('hidden');
+            }
+        });
+    </script>
+
+</body>
+</html>
