@@ -3,3 +3,4 @@ uvicorn
 pillow
 groq
 python-multipart
+requests
