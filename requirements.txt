@@ -5,3 +5,4 @@ groq
 python-multipart
 requests
 dotenv
+jinja2
